@@ -1,0 +1,23 @@
+{
+  "name": "agc-util",
+  "version": "1.0.0",
+  "description": "Agnostic Utility to Handle Protect-DC AGC Configuration Files",
+  "main": "agcUtil.js",
+  "scripts": {
+    "test": "node tests/test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LabZDjee/agc-util.git"
+  },
+  "author": "G. Gauthier",
+  "license": "ISC",
+  "dependencies": {
+    "ignore-case": "^0.1.0"
+  },
+  "devDependencies": {
+    "chalk": "^4.0.0",
+    "lodash.isequal": "^4.5.0"
+  },
+  "homepage": "https://github.com/LabZDjee/agc-util"
+}
