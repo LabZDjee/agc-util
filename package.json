@@ -1,8 +1,8 @@
 {
-  "name": "agc-util",
+  "name": "@labzdjee/agc-util",
   "version": "1.0.0",
   "description": "Agnostic Utility to Handle Protect-DC AGC Configuration Files",
-  "main": "agcUtil.js",
+  "main": "agc-util.js",
   "scripts": {
     "test": "node tests/test"
   },
