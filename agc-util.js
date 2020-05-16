@@ -20,6 +20,9 @@ const keyValueLineRegex = /^(\S+)\s*=\s*\"(.*)\"\s*$/;
 const commentRegex = /^#.*$/;
 const blankLineRegex = /^\s*$/;
 
+const notesMetaLineRegex = /^\$Notes\s*=\s*\"[^\"]*\s*$/;
+const notesMetaEnd = /^(.*)\"\s*$/;
+
 // analyze lines of an .agc file and return an array of objects with the following structure:
 //  name: string, name of section
 //  startLine: number, line number of section start (inclusive)
@@ -53,15 +56,36 @@ const blankLineRegex = /^\s*$/;
 //   UM: unexpected meta tag
 //   UO: unexpected object
 // notes:
-//   first unnamed section is given name "{Header}"
-//   line numbers are one-based
-//   first unnamed section can only have metaTags
-//   only sections GCAUConfigurationData and GCAUCalibrationData can have objects, but no data
-//   all other sections can have data but no objects
-//   in any case, metaTags, objects, and data are all optional and will be undefined if not found in section
+//   . first unnamed section is given name "{Header}"
+//   . line numbers are one-based
+//   . first unnamed section can only have metaTags
+//   . only sections GCAUConfigurationData and GCAUCalibrationData can have objects, but no data
+//   . all other sections can have data but no objects
+//   . in any case, metaTags, objects, and data are all optional and will be undefined if not found in section
+//   . also, to address a legacy case, where a single metaTag "$Notes" can span over multiple lines, 'lines' is preprocessed
+//     and if such a case in detected, array 'lines' undergoes a side effect (alteration): $Notes is expanded on
+//     as many lines as it is encountered, for example $Notes = "abc\ndef\ghi" (note the \n meaning this expression occupies 3 lines)
+//     will be expanded as $Notes = "abc", $Notes = "def", and $Notes = "ghi"
 function analyzeAgcFile(lines) {
   const agcFileStruct = [{ name: headerSectionMarker, startLine: 1, endLine: 1, metaTags: [] }];
   let sectionIndex = 0;
+  for (let n = 0, inNotes = false; n < lines.length; n++) {
+    const line = lines[n];
+    if (line.match(notesMetaLineRegex) !== null) {
+      lines[n] += `"`;
+      inNotes = true;
+      continue;
+    }
+    if (inNotes) {
+      const matches = line.match(notesMetaEnd);
+      if (matches !== null) {
+        lines[n] = `$Notes = "${matches[1]}"`;
+        inNotes = false;
+      } else {
+        lines[n] = `$Notes = "${line}"`;
+      }
+    }
+  }
   for (let n = 1; n <= lines.length; n++) {
     const line = lines[n - 1];
     let sectionClosed;
@@ -113,7 +137,7 @@ function analyzeAgcFile(lines) {
     } else if (["GCAUConfigurationData", "GCAUCalibrationData"].indexOf(agcFileStruct[sectionIndex].name) >= 0) {
       matches = line.match(objectLineRegex);
       if (matches === null) {
-        throw { line: n, explicit: `unexpected line: "${line}"`, category: "UL" };
+        throw { line: n, explicit: `unexpected line: '${line}'`, category: "UL" };
       }
       if (sectionClosed) {
         throw {

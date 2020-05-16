@@ -5,9 +5,10 @@ const fs = require("fs");
 const isEqual = require("lodash.isequal");
 const chalk = require("chalk");
 
-const agcFilename = "tests/test.agc";
-const jsonFilename = "tests/agcStruct.json";
-const pathToIncorrectAgcs = "tests/wrong-agcs";
+const agcFilename = "./tests/test.agc";
+const legacyAgcFilename = "./tests/legacy-test.agc";
+const jsonFilename = "./tests/agcStruct.json";
+const pathToIncorrectAgcs = "./tests/wrong-agcs";
 
 const testLineRegex = /^#\s*test\s*=\s*([A-Z]+)\|(.*)\|([0-9]+)\s*$/;
 
@@ -218,6 +219,19 @@ try {
         }
       }
     }
+  }
+
+  console.log(`step ${++step}: check legacy structure where a $Notes metaTag can span over several lines`);
+  const legacyLines = fs.readFileSync(legacyAgcFilename, "utf8").split(/\r?\n/);
+  const legacyAgcStruct = analyzeAgcFile(legacyLines);
+  if (isEqual(lines, legacyLines)) {
+    if (!isEqual(agcStruct, legacyAgcStruct)) {
+      errors++;
+      console.log(chalk.red("output struct of legcay file does not match expectation"));
+    }
+  } else {
+    errors++;
+    console.log(chalk.red("correction on lines of legacy file failed"));
   }
 
   if (errors === 0) {
