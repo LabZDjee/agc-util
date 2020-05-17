@@ -62,11 +62,11 @@ Analyze `lines` array of an AGC file and return an **array** of **objects** with
 - `objects`: array of objects with the following struct:
 
   - `name`: string, object name
-  - `attributes`: array of objects with the following struct:
-  - `name`: string, attribute name
-  - `value`: string, attribute value
-  - `readOnly`: boolean, true if attribute is read-only
-  - `line`: number, line number where meta tag is located
+  - `attributes`: array of `attribute` objects with the following struct:
+    - `name`: string, attribute name
+    - `value`: string, attribute value
+    - `readOnly`: boolean, true if attribute is read-only
+    - `line`: number, line number where attribute is located
 
 - `data`: array of (key, value) pairs with the following struct:
   - `name`: string, the key
@@ -104,10 +104,10 @@ _Notes:_
 Search a sub-object in `*agcFileStruct*` (as returned by function `analyzeAgcFile`), matching certain properties given in `searchHint` which is an object with the following properties:
 
 - `section`: string, section (defauts to: `"GCAUConfigurationData"`)
-- `metaTag`: string, return the array of metaTags defined by (`section` and `metaTag`)
-- `dataKey`: string, return the array of data defined by (`section` and `dataKey`)
-- `object`: string, if alone, return the object defined by (`section` and `object`)
-- `object`, `attribute`: strings, return the attribute defined by (`section`, `object`, and `attribute`)
+- `metaTag`: string, return the array of _metaTag_ objects defined by (`section` and `metaTag`)
+- `dataKey`: string, return the array of _data_ objects defined by (`section` and `dataKey`)
+- `object`: string, if alone, return the _object_ object defined by (`section` and `object`)
+- `object`, `attribute`: strings, return the _attribute_ object defined by (`section`, `object`, and `attribute`)
 
 _Notes_:
 
