@@ -101,7 +101,7 @@ _Notes:_
 
 ## `findInAgcFileStruct(searchHint, agcFileStruct)`
 
-Search a sub-object in `*agcFileStruct*` (as returned by function `analyzeAgcFile`), matching certain properties given in `searchHint` which is an object with the following properties:
+Search a sub-object in `agcFileStruct` (as returned by function `analyzeAgcFile`), matching certain properties given in `searchHint` which is an object with the following properties:
 
 - `section`: string, section (defauts to: `"GCAUConfigurationData"`)
 - `metaTag`: string, return the array of _metaTag_ objects defined by (`section` and `metaTag`)
