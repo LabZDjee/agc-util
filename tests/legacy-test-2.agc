@@ -1,15 +1,19 @@
-#-------------------------------
-#------- AGC Test File ---------
-#-- with multi-line $notes -----
+#------------------------------------
+#------- AGC Test File --------------
+#- with incorrect $VLowLimit --------
+#- and missing $EquationAdditionals -
+#- section --------------------------
+#------------------------------------
 $Metalsmith = "pattern"
 $Bluebird = "super-set"
-$Notes = "Sed ut perspiciatis
-unde omnis iste
-natus error sit voluptatem"
+$Notes = "Sed ut perspiciatis"
+$Notes = "unde omnis iste"
+$Notes = "natus error sit voluptatem"
 
 $GCAUConfigurationData = "Start"
 $Observer = "package"
 $Behaviour = "XHR"
+$VLowLimit = "123 
 
 CSS.Proto = "conform"
 CSS.Version = "6"
@@ -52,9 +56,3 @@ OPT.104 = "0"
 OPT.205 = "1"
 $SPReTPReOptions = "End"
 
-$EquationAdditionals = "Start"
-EQ1.sd = "123"
-EQ2.sd = "786"
-EQ1.LD = "cillum dolore"
-EQ2.LD = "excepturi sint occaecati"
-$EquationAdditionals = "End"

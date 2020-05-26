@@ -9,7 +9,7 @@ const sectionMarkers = [
   "BOM",
   "TestAdditionalTests",
   "SPReTPReOptions",
-  "EquationAdditionals",
+  "EquationAdditionals", // this one is optional
 ];
 
 const headerSectionMarker = "{Header}";
@@ -20,7 +20,8 @@ const keyValueLineRegex = /^(\S+)\s*=\s*\"(.*)\"\s*$/;
 const commentRegex = /^#.*$/;
 const blankLineRegex = /^\s*$/;
 
-const notesMetaLineRegex = /^\$Notes\s*=\s*\"[^\"]*\s*$/;
+const notesMetaLineRegex = /^\$Notes\s*=\s*\"[^\"]*$/;
+const VLowLimitMetaLineRegex = /^\$(VLowLimit)\s*=\s*\"([^ \"\t]*)\s*$/;
 const notesMetaEnd = /^(.*)\"\s*$/;
 
 // analyze lines of an .agc file and return an array of objects with the following structure:
@@ -99,6 +100,13 @@ function analyzeAgcFile(lines) {
       sectionClosed = agcFileStruct[sectionIndex].endLine >= 0;
     }
     let matches = line.match(metaLineRegex);
+    let isVLowLimit = false;
+    if (matches === null) {
+      matches = line.match(VLowLimitMetaLineRegex);
+      if (matches !== null) {
+        isVLowLimit = true;
+      }
+    }
     if (matches !== null) {
       if (sectionMarkers.indexOf(matches[1]) >= 0) {
         if (ignoreCase.equals(matches[2], "Start")) {
@@ -133,6 +141,9 @@ function analyzeAgcFile(lines) {
           agcFileStruct[sectionIndex].metaTags = [];
         }
         agcFileStruct[sectionIndex].metaTags.push({ name: matches[1], value: matches[2], line: n });
+        if (isVLowLimit) {
+          lines[n - 1] = `\$${matches[1]} = "${matches[2]}"`;
+        }
       }
     } else if (["GCAUConfigurationData", "GCAUCalibrationData"].indexOf(agcFileStruct[sectionIndex].name) >= 0) {
       matches = line.match(objectLineRegex);
@@ -203,7 +214,7 @@ function analyzeAgcFile(lines) {
     markerCounts[v.name]++;
   });
   for (const section in markerCounts) {
-    if (markerCounts[section] === 0) {
+    if (markerCounts[section] === 0 && section !== "EquationAdditionals") {
       throw { line: lines.length, explicit: `section ${section} not found`, category: "MS" };
     }
     if (markerCounts[section] > 1) {

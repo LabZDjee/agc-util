@@ -7,6 +7,7 @@ const chalk = require("chalk");
 
 const agcFilename = "./tests/test.agc";
 const legacyAgcFilename = "./tests/legacy-test.agc";
+const legacy2AgcFilename = "./tests/legacy-test-2.agc";
 const jsonFilename = "./tests/agcStruct.json";
 const pathToIncorrectAgcs = "./tests/wrong-agcs";
 
@@ -221,17 +222,44 @@ try {
     }
   }
 
-  console.log(`step ${++step}: check legacy structure where a $Notes metaTag can span over several lines`);
+  console.log(`step ${++step}: check legacy AGC when a $Notes can span over several lines`);
   const legacyLines = fs.readFileSync(legacyAgcFilename, "utf8").split(/\r?\n/);
   const legacyAgcStruct = analyzeAgcFile(legacyLines);
-  if (isEqual(lines, legacyLines)) {
-    if (!isEqual(agcStruct, legacyAgcStruct)) {
-      errors++;
-      console.log(chalk.red("output struct of legcay file does not match expectation"));
-    }
-  } else {
+  if (!isEqual(agcStruct, legacyAgcStruct)) {
     errors++;
-    console.log(chalk.red("correction on lines of legacy file failed"));
+    console.log(chalk.red("output struct of legacy file does not match expectation"));
+  }
+  const legacyNotes = findInAgcFileStruct({ section: "{Header}", metaTag: "Notes" }, legacyAgcStruct);
+  if (legacyNotes === null) {
+    errors++;
+    console.log(chalk.red("no $Notes found in legacy test file"));
+  } else {
+    for (let i = 0; i < legacyNotes.length; i++) {
+      if (legacyLines[legacyNotes[i].line - 1].startsWith("$Notes") === false) {
+        errors++;
+        console.log(chalk.red("correction on $Notes not done correctly"));
+        break;
+      }
+    }
+  }
+
+  console.log(`step ${++step}: check legacy snags ($VLowLimit incorrect and missing $EquationAdditionals)`);
+  const legacy2Lines = fs.readFileSync(legacy2AgcFilename, "utf8").split(/\r?\n/);
+  const legacy2AgcStruct = analyzeAgcFile(legacy2Lines);
+  if (findInAgcFileStruct({ section: "EquationAdditionals" }, legacy2AgcStruct) !== null) {
+    errors++;
+    console.log(chalk.red("section $EquationAdditionals should be missing"));
+  }
+  const vLowLimitDef = findInAgcFileStruct({ metaTag: "VLowLimit" }, legacy2AgcStruct);
+  if (vLowLimitDef === null) {
+    errors++;
+    console.log(chalk.red("section $VLowLimit not found"));
+  } else if (vLowLimitDef[0].value !== "123") {
+    errors++;
+    console.log(chalk.red("section $VLowLimit value incorrect"));
+  } else if (legacy2Lines[vLowLimitDef[0].line - 1] !== `$VLowLimit = "123"`) {
+    errors++;
+    console.log(chalk.red("section $VLowLimit correction not done as expected"));
   }
 
   if (errors === 0) {
