@@ -6,7 +6,7 @@ const ignoreCase = require("ignore-case");
 const sectionMarkers = [
   "GCAUConfigurationData",
   "GCAUCalibrationData",
-  "BOM",
+  "BOM", // this one is optional
   "TestAdditionalTests",
   "SPReTPReOptions",
   "EquationAdditionals", // this one is optional
@@ -214,7 +214,7 @@ function analyzeAgcFile(lines) {
     markerCounts[v.name]++;
   });
   for (const section in markerCounts) {
-    if (markerCounts[section] === 0 && section !== "EquationAdditionals") {
+    if (markerCounts[section] === 0 && section !== "EquationAdditionals" && section !== "BOM") {
       throw { line: lines.length, explicit: `section ${section} not found`, category: "MS" };
     }
     if (markerCounts[section] > 1) {

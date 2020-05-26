@@ -261,6 +261,11 @@ try {
     errors++;
     console.log(chalk.red("section $VLowLimit correction not done as expected"));
   }
+  console.log(`step ${++step}: yet another legacy snags (missing $BOM)`);
+  if (findInAgcFileStruct({ section: "BOM" }, legacy2AgcStruct) !== null) {
+    errors++;
+    console.log(chalk.red("section $BOM should be missing"));
+  }
 
   if (errors === 0) {
     console.log(chalk.greenBright(`PASS - completed ${step} step${plural(step)} succesfully`));
