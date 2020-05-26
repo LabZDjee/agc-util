@@ -98,7 +98,7 @@ _Notes:_
 - in any case, _metaTags_, objects, and data are all optional and will be undefined if not found in section
 - array`lines` can be easily be build by `data.split(/\r?\n/)` provided by `readFile` function for example
 - from version 1.2, to address a legacy case, where a single metaTag `$Notes` can span over multiple lines, `lines` array is preprocessed and if such a case is detected, this array undergoes a side effect (alteration): `$Notes` is expanded on as many lines as it is encountered, for example `$Notes = "abc\ndef\ghi"` (note the `\n` meaning this expression occupies 3 lines) will be expanded as `$Notes = "abc"`, `$Notes = "def"`, and `$Notes = "ghi"`
-- from version 1.4, some legacy peculiarities are also addressed: section  `EquationAdditionals` is optional and *metaTag* `$VLowLimit`  is not properly closed with a double-quote
+- from version 1.4, some legacy peculiarities are also addressed: section `EquationAdditionals` optional and _metaTag_ `$VLowLimit` not properly closed with a double-quote
 
 ## `findInAgcFileStruct(searchHint, agcFileStruct)`
 
