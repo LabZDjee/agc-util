@@ -38,7 +38,7 @@ let step = 0;
 
 try {
   console.log(`step ${++step}: check "analyzeAgcFile" on file "${agcFilename}"`);
-  const lines = fs.readFileSync(agcFilename, "utf8").split(/\r?\n/);
+  const lines = fs.readFileSync(agcFilename, "latin1").split(/\r?\n/);
   const agcStruct = analyzeAgcFile(lines);
   const agcRefStruct = JSON.parse(fs.readFileSync(jsonFilename, "utf8"));
   if (!isEqual(agcStruct, agcRefStruct)) {
@@ -52,7 +52,7 @@ try {
   for (fileIndex = 0; fileIndex < incorrectAgcs.length; fileIndex++) {
     let digram, keywords, lineNb;
     try {
-      const lines = fs.readFileSync(`${pathToIncorrectAgcs}/${incorrectAgcs[fileIndex]}`, "utf8").split(/\r?\n/);
+      const lines = fs.readFileSync(`${pathToIncorrectAgcs}/${incorrectAgcs[fileIndex]}`, "latin1").split(/\r?\n/);
       const matches = lines[0].match(testLineRegex);
       if (matches === null) {
         continue;
@@ -223,7 +223,7 @@ try {
   }
 
   console.log(`step ${++step}: check legacy AGC when a $Notes can span over several lines`);
-  const legacyLines = fs.readFileSync(legacyAgcFilename, "utf8").split(/\r?\n/);
+  const legacyLines = fs.readFileSync(legacyAgcFilename, "latin1").split(/\r?\n/);
   const legacyAgcStruct = analyzeAgcFile(legacyLines);
   if (!isEqual(agcStruct, legacyAgcStruct)) {
     errors++;
@@ -244,7 +244,7 @@ try {
   }
 
   console.log(`step ${++step}: check legacy snags ($VLowLimit incorrect and missing $EquationAdditionals)`);
-  const legacy2Lines = fs.readFileSync(legacy2AgcFilename, "utf8").split(/\r?\n/);
+  const legacy2Lines = fs.readFileSync(legacy2AgcFilename, "latin1").split(/\r?\n/);
   const legacy2AgcStruct = analyzeAgcFile(legacy2Lines);
   if (findInAgcFileStruct({ section: "EquationAdditionals" }, legacy2AgcStruct) !== null) {
     errors++;
@@ -261,7 +261,7 @@ try {
     errors++;
     console.log(chalk.red("section $VLowLimit correction not done as expected"));
   }
-  console.log(`step ${++step}: yet another legacy snags (missing $BOM)`);
+  console.log(`step ${++step}: yet another legacy snag (missing $BOM)`);
   if (findInAgcFileStruct({ section: "BOM" }, legacy2AgcStruct) !== null) {
     errors++;
     console.log(chalk.red("section $BOM should be missing"));

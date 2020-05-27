@@ -4,7 +4,7 @@ Agnostic utility to handle Protect-DC AGC configuration files
 
 Anyone not aware of what a _Protect-DC_ system is, should not be interested in using this
 
-This library essentially builds an ECMAScript array composed of objects and structures made of pointers (line numbers) to the AGC file contents
+This library essentially builds an ECMAScript array composed of objects and structures made of pointers (line numbers) to the AGC file contents and offers a means to query sub-parts of this array
 
 # Structure of an AGC File
 
@@ -13,6 +13,8 @@ This text file is composed of (key, value) pairs of this structure: `{key} = "{v
 <u>Note</u>: in this document, braces `{}` should not be taken literally, they denotes an entity inside which then should not be taken literally as well
 
 Each such pair occupies one line (preferably cr/lf terminated, though this library doesn't care as it takes an array made of strings)
+
+Also when reading this file is encoding should preferably be `latin1`
 
 Any line which is blank (empty or only made of spaces and tabs) or starting with a pound sign `#` is ignored in the structure of the file
 
@@ -90,15 +92,15 @@ If analyzed data are inconsistent this method will throw with the following erro
 
 _Notes:_
 
-- first unnamed section is given name "`{Header}`"
-- line numbers are one-based
+- first unnamed section is given special name "`{Header}`"
+- line numbers are one-based (counting from 1)
 - first unnamed section can only have _metaTags_
 - only sections `GCAUConfigurationData` and `GCAUCalibrationData` can have objects, but no data
 - all other sections can have data but no objects
 - in any case, _metaTags_, objects, and data are all optional and will be undefined if not found in section
-- array`lines` can be easily be build by `data.split(/\r?\n/)` provided by `readFile` function for example
-- from version 1.2, to address a legacy case, where a single metaTag `$Notes` can span over multiple lines, `lines` array is preprocessed and if such a case is detected, this array undergoes a side effect (alteration): `$Notes` is expanded on as many lines as it is encountered, for example `$Notes = "abc\ndef\ghi"` (note the `\n` meaning this expression occupies 3 lines) will be expanded as `$Notes = "abc"`, `$Notes = "def"`, and `$Notes = "ghi"`
-- from version 1.4, some legacy peculiarities are also addressed: section `$EquationAdditionals` optional and _metaTag_ `$VLowLimit` not properly closed with a double-quote
+- array`lines` can be easily be build by `data.split(/\r?\n/)` provided by `readFile` function for example (with a `latin1` encoding)
+- from version 1.2, to address a legacy case, where a single *metaTag* `$Notes` can span over multiple lines, `lines` array is preprocessed and if such a case is detected, this array undergoes a side effect (alteration): `$Notes` is expanded on as many lines as it is encountered, for example `$Notes = "abc\ndef\ghi"` (note the `\n` meaning this expression occupies 3 lines) will be expanded as `$Notes = "abc"`, `$Notes = "def"`, and `$Notes = "ghi"`
+- from version 1.4, some legacy peculiarities are also addressed: section `$EquationAdditionals` optional and _metaTag_ `$VLowLimit` is unfortunately not properly closed with a double-quote for some obscure reason. When this unclosed case is met `lines` array is also altered: a closing double-quote is added
 - from version 1.6, section `$BOM` becomes optional as well to address primitive versions of this file
 
 ## `findInAgcFileStruct(searchHint, agcFileStruct)`
