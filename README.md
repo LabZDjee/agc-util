@@ -28,7 +28,7 @@ All other simple `{key} = "{value}"` pairs are considered plain **data**
 
 ## Sections
 
-An AGC file is made of a number of _compulsory_ sections which have markers, except the first one which in considered the file header
+An AGC file is made of a number of sections which have markers, except the first one which in considered the file header
 
 Sections are framed by an opening line: `${sectionName} = "Start"` and a closing line `${section} = "End"`
 
