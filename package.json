@@ -1,6 +1,6 @@
 {
   "name": "@labzdjee/agc-util",
-  "version": "1.6.2",
+  "version": "1.6.4",
   "description": "Agnostic Utility to Handle Protect-DC AGC Configuration Files",
   "main": "agc-util.js",
   "scripts": {

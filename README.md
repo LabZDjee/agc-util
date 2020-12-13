@@ -4,7 +4,7 @@ Agnostic utility to handle Protect-DC AGC configuration files
 
 Anyone not aware of what a _Protect-DC_ system is, should not be interested in using this
 
-This library essentially builds an ECMAScript array composed of objects and structures made of pointers (line numbers) to the AGC file contents and offers a means to query sub-parts of this array
+This library essentially builds an ECMAScript array composed of objects and structures made of pointers (line numbers, starting from *one*) to the AGC file contents and offers a means to query sub-parts of this array
 
 # Structure of an AGC File
 
@@ -34,17 +34,20 @@ Sections are framed by an opening line: `${sectionName} = "Start"` and a closing
 
 First section comes before any other, has no opening and closing line
 
-The following table enumerates those compulsory sections and what entities they support (no entity is compulsory and there is no limit in the number of instances of those entities)
+The following table enumerates those sections and what entities they support (no entity is compulsory and there is no limit in the number of instances of those entities)
 
-| Section name            | Allowed entities            |
-| ----------------------- | :-------------------------- |
-| _(header)_              | meta data                   |
-| `GCAUConfigurationData` | meta data, object-attribute |
-| `GCAUCalibrationData`   | meta data, object-attribute |
-| `BOM`                   | meta data, data             |
-| `TestAdditionalTests`   | meta data, data             |
-| `SPReTPReOptions`       | meta data, data             |
-| `EquationAdditionals`   | meta data, data             |
+| Section name                  | Section is optional | Allowed entities            |
+| ----------------------------- | ------------------- | :-------------------------- |
+| _(header)_                    | No                  | meta data                   |
+| `GCAUConfigurationData`       | No                  | meta data, object-attribute |
+| `GCAUCalibrationData`         | No                  | meta data, object-attribute |
+| `BOM`                         | *Yes*               | meta data, data             |
+| `TestAdditionalTests`         | No                  | meta data, data             |
+| `SPReTPReOptions`             | No                  | meta data, data             |
+| `EquationAdditionals`         | *Yes*               | meta data, data             |
+| `TestOperatorInterfaceResult` | *Yes*               | meta data, data             |
+
+To be specific, `BOM` and `EquationAdditionals` have only been introduced later in the product lifetime and were absent in first versions. And `TestOperatorInterfaceResult`  is only present is *archive* AGC files (where test results in addition to configuration data have been inserted)
 
 # API
 
@@ -118,7 +121,7 @@ _Notes_:
 - if `metaTag` is given `object` and `attribute` are ignored
 - if neither `metaTag` nor `object` are provided section object is returned
 - when not found, `null` is returned
-- metaTag and dataKey are returned as an array because it is allowed to have multiple values for each entry key
+- `metaTag` and `dataKey` are returned as an array because it is allowed to have multiple values for each entry key
 
 # Install and Use
 

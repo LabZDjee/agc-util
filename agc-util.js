@@ -10,11 +10,13 @@ const sectionMarkers = [
   "TestAdditionalTests",
   "SPReTPReOptions",
   "EquationAdditionals", // this one is optional
+  "TestOperatorInterfaceResult", // this one is optional
 ];
 
 const headerSectionMarker = "{Header}";
 
 const metaLineRegex = /^\$(\w+)\s*=\s*\"(.*)\"\s*$/;
+const sickMetaLineRegex = /^\$(\w+)\s*=\s*\"(.*)$/;
 const objectLineRegex = /^([A-Z][A-Z0-9_]*)\.(!?)([A-Za-z][A-Za-z0-9]*)\s*=\s*\"(.*)\"\s*$/;
 const keyValueLineRegex = /^(\S+)\s*=\s*\"(.*)\"\s*$/;
 const commentRegex = /^#.*$/;
@@ -68,7 +70,12 @@ const notesMetaEnd = /^(.*)\"\s*$/;
 //     as many lines as it is encountered, for example $Notes = "abc\ndef\ghi" (note the \n meaning this expression occupies 3 lines)
 //     will be expanded as $Notes = "abc", $Notes = "def", and $Notes = "ghi"
 function analyzeAgcFile(lines) {
-  const agcFileStruct = [{ name: headerSectionMarker, startLine: 1, endLine: 1, metaTags: [] }];
+  const agcFileStruct = [{
+    name: headerSectionMarker,
+    startLine: 1,
+    endLine: 1,
+    metaTags: []
+  }];
   let sectionIndex = 0;
   for (let n = 0, inNotes = false; n < lines.length; n++) {
     const line = lines[n];
@@ -105,6 +112,8 @@ function analyzeAgcFile(lines) {
       matches = line.match(VLowLimitMetaLineRegex);
       if (matches !== null) {
         isVLowLimit = true;
+      } else {
+        matches = line.match(sickMetaLineRegex);
       }
     }
     if (matches !== null) {
@@ -118,7 +127,11 @@ function analyzeAgcFile(lines) {
             };
           }
           sectionIndex++;
-          agcFileStruct.push({ name: matches[1], startLine: n, endLine: -1 });
+          agcFileStruct.push({
+            name: matches[1],
+            startLine: n,
+            endLine: -1
+          });
         } else if (ignoreCase.equals(matches[2], "End")) {
           if (agcFileStruct[sectionIndex].name !== matches[1]) {
             throw {
@@ -140,7 +153,11 @@ function analyzeAgcFile(lines) {
         if (agcFileStruct[sectionIndex].metaTags === undefined) {
           agcFileStruct[sectionIndex].metaTags = [];
         }
-        agcFileStruct[sectionIndex].metaTags.push({ name: matches[1], value: matches[2], line: n });
+        agcFileStruct[sectionIndex].metaTags.push({
+          name: matches[1],
+          value: matches[2],
+          line: n
+        });
         if (isVLowLimit) {
           lines[n - 1] = `\$${matches[1]} = "${matches[2]}"`;
         }
@@ -148,7 +165,11 @@ function analyzeAgcFile(lines) {
     } else if (["GCAUConfigurationData", "GCAUCalibrationData"].indexOf(agcFileStruct[sectionIndex].name) >= 0) {
       matches = line.match(objectLineRegex);
       if (matches === null) {
-        throw { line: n, explicit: `unexpected line: '${line}'`, category: "UL" };
+        throw {
+          line: n,
+          explicit: `unexpected line: '${line}'`,
+          category: "UL"
+        };
       }
       if (sectionClosed) {
         throw {
@@ -161,9 +182,17 @@ function analyzeAgcFile(lines) {
         agcFileStruct[sectionIndex].objects = [];
       }
       const objects = agcFileStruct[sectionIndex].objects;
-      const attribute = { name: matches[3], value: matches[4], readOnly: matches[2] === "!", line: n };
+      const attribute = {
+        name: matches[3],
+        value: matches[4],
+        readOnly: matches[2] === "!",
+        line: n
+      };
       if (objects.every((obj) => obj.name !== matches[1])) {
-        objects.push({ name: matches[1], attributes: [attribute] });
+        objects.push({
+          name: matches[1],
+          attributes: [attribute]
+        });
       } else {
         for (let oi = 0; oi < objects.length; oi++) {
           if (objects[oi].name === matches[1]) {
@@ -181,7 +210,11 @@ function analyzeAgcFile(lines) {
     } else if (agcFileStruct[sectionIndex].name !== headerSectionMarker) {
       matches = line.match(keyValueLineRegex);
       if (matches === null) {
-        throw { line: n, explicit: `unexpected line: "${line}"`, category: "UL" };
+        throw {
+          line: n,
+          explicit: `unexpected line: "${line}"`,
+          category: "UL"
+        };
       }
       if (sectionClosed) {
         throw {
@@ -193,9 +226,17 @@ function analyzeAgcFile(lines) {
       if (agcFileStruct[sectionIndex].data === undefined) {
         agcFileStruct[sectionIndex].data = [];
       }
-      agcFileStruct[sectionIndex].data.push({ name: matches[1], value: matches[2], line: n });
+      agcFileStruct[sectionIndex].data.push({
+        name: matches[1],
+        value: matches[2],
+        line: n
+      });
     } else {
-      throw { line: n, explicit: `unexpected line: "${line}"`, category: "UL" };
+      throw {
+        line: n,
+        explicit: `unexpected line: "${line}"`,
+        category: "UL"
+      };
     }
   }
   if (agcFileStruct[sectionIndex].endLine < 0) {
@@ -214,12 +255,20 @@ function analyzeAgcFile(lines) {
     markerCounts[v.name]++;
   });
   for (const section in markerCounts) {
-    if (markerCounts[section] === 0 && section !== "EquationAdditionals" && section !== "BOM") {
-      throw { line: lines.length, explicit: `section ${section} not found`, category: "MS" };
+    if (markerCounts[section] === 0 && section !== "EquationAdditionals" && section !== "BOM" && section !== "TestOperatorInterfaceResult") {
+      throw {
+        line: lines.length,
+        explicit: `section ${section} not found`,
+        category: "MS"
+      };
     }
     if (markerCounts[section] > 1) {
       const reducedAgcFS = agcFileStruct.filter((v) => v.name === section);
-      throw { line: reducedAgcFS[1].startLine, explicit: `section ${section} is duplicate`, category: "DS" };
+      throw {
+        line: reducedAgcFS[1].startLine,
+        explicit: `section ${section} is duplicate`,
+        category: "DS"
+      };
     }
   }
   return agcFileStruct;
@@ -295,4 +344,7 @@ function findInAgcFileStruct(searchHint, agcFileStruct) {
   return section;
 }
 
-module.exports = { analyzeAgcFile, findInAgcFileStruct };
+module.exports = {
+  analyzeAgcFile,
+  findInAgcFileStruct
+};
