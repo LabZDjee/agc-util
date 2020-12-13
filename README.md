@@ -47,7 +47,7 @@ The following table enumerates those sections and what entities they support (no
 | `EquationAdditionals`         | *Yes*               | meta data, data             |
 | `TestOperatorInterfaceResult` | *Yes*               | meta data, data             |
 
-To be specific, `BOM` and `EquationAdditionals` have only been introduced later in the product lifetime and were absent in first versions. And `TestOperatorInterfaceResult`  is only present is *archive* AGC files (where test results in addition to configuration data have been inserted)
+To be specific, `BOM` and `EquationAdditionals` have only been introduced later in the product lifetime and were absent in first versions. And `TestOperatorInterfaceResult`  is only present is *archive* AGC files (where test results in addition to configuration data have been inserted). it is also worth noting `TestOperatorInterfaceResult` section has issues and rule stating every *value* has to be surrounded with double-quotes is not always valid and parsing of this section is very lax regarding this
 
 # API
 

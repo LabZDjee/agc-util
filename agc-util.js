@@ -16,11 +16,14 @@ const sectionMarkers = [
 const headerSectionMarker = "{Header}";
 
 const metaLineRegex = /^\$(\w+)\s*=\s*\"(.*)\"\s*$/;
-const sickMetaLineRegex = /^\$(\w+)\s*=\s*\"(.*)$/;
 const objectLineRegex = /^([A-Z][A-Z0-9_]*)\.(!?)([A-Za-z][A-Za-z0-9]*)\s*=\s*\"(.*)\"\s*$/;
 const keyValueLineRegex = /^(\S+)\s*=\s*\"(.*)\"\s*$/;
 const commentRegex = /^#.*$/;
 const blankLineRegex = /^\s*$/;
+
+// relaxed rules for TestOperatorInterfaceResult which is very lax
+const sickMetaLineRegex = /^\$(\w+)\s*=\s*\"?([^"]*)$/;
+const sickKeyValueLineRegex = /^(\S+)\s*=\s*\"?([^"]*)*$/;
 
 const notesMetaLineRegex = /^\$Notes\s*=\s*\"[^\"]*$/;
 const VLowLimitMetaLineRegex = /^\$(VLowLimit)\s*=\s*\"([^ \"\t]*)\s*$/;
@@ -112,7 +115,7 @@ function analyzeAgcFile(lines) {
       matches = line.match(VLowLimitMetaLineRegex);
       if (matches !== null) {
         isVLowLimit = true;
-      } else {
+      } else if (agcFileStruct[sectionIndex].name === "TestOperatorInterfaceResult") {
         matches = line.match(sickMetaLineRegex);
       }
     }
@@ -209,6 +212,9 @@ function analyzeAgcFile(lines) {
       }
     } else if (agcFileStruct[sectionIndex].name !== headerSectionMarker) {
       matches = line.match(keyValueLineRegex);
+      if (matches === null && agcFileStruct[sectionIndex].name === "TestOperatorInterfaceResult") {
+        matches = line.match(sickKeyValueLineRegex);
+      }
       if (matches === null) {
         throw {
           line: n,
